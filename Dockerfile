@@ -1,0 +1,18 @@
+### STAGE 1 - build ###
+FROM node:16 AS builder
+WORKDIR /app
+COPY package*.json 
+
+RUN npm install
+COPY . .
+
+RUN npm run build
+
+### STAGE 2 - run para ahorrar espacio ###
+FROM node:16-alpine
+WORKDIR /app
+RUN --from=builder /app/dist ./dist
+RUN --from=builder /app/node_modules ./node_modules
+RUN ls
+EXPOSE 3000
+RUN ["node", "/app/dist/main.js"]
